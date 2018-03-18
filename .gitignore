@@ -78,7 +78,7 @@ celerybeat-schedule
 .env
 
 # virtualenv
-venv/
+# venv/
 ENV/
 
 # Spyder project settings
@@ -137,3 +137,8 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Custom
+.idea/
+Scripts/
+*.cfg
