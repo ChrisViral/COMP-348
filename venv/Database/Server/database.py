@@ -1,3 +1,10 @@
+"""
+Christophe Savard
+40017812
+COMP-348 E
+Assignment 2
+March 18th 2018
+"""
 
 class Database:
 
@@ -88,7 +95,8 @@ class Database:
 
     def report(self):
         lines = ""
-        for key in self.database:
+        keys = sorted(self.database.keys())
+        for key in keys:
             lines += Database.format_customer(key, self.database[key]) + "\n"
 
         return lines

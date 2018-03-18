@@ -1,3 +1,11 @@
+"""
+Christophe Savard
+40017812
+COMP-348 E
+Assignment 2
+March 18th 2018
+"""
+
 from .database import Database
 from socketserver import TCPServer, StreamRequestHandler
 

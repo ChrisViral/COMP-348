@@ -1,4 +1,13 @@
-import os, signal
+"""
+Christophe Savard
+40017812
+COMP-348 E
+Assignment 2
+March 18th 2018
+"""
+
+import os
+import signal
 import socket
 
 class Client:
