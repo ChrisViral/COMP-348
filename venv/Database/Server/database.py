@@ -17,6 +17,8 @@ class Database:
             if customer != None:
                 self.add_customer(customer, False)
 
+        self.update_file()
+
     @staticmethod
     def process_customer(line):
         data = line.strip().split('|')
