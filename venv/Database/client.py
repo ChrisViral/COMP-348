@@ -10,9 +10,11 @@ if __name__ == "__main__":
 
     from Client.database_client import Client
 
+    # Client address
     HOST = "localhost"
     PORT = 9999
     client = Client((HOST, PORT))
 
+    # Keep looping until client shuts down
     while client.active:
         client.request()
