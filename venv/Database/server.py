@@ -17,5 +17,6 @@ if __name__ == "__main__":
 
     with DatabaseServer(FILE, (HOST, PORT), DatabaseHandler) as server:
         # Start server
-        print("Server PID: " + str(server.pid))
+        print("Starting server...")
+        print("Server PID: " + str(server.getpid))
         server.serve_forever()

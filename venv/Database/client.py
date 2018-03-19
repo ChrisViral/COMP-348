@@ -15,6 +15,8 @@ if __name__ == "__main__":
     PORT: int = 9999
     client: Client = Client((HOST, PORT))
 
+    print("Welcome to the Database client interface!\n")
+
     # Keep looping until client shuts down
     while client.active:
         client.request()
