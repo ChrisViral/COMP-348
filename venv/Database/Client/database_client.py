@@ -9,10 +9,11 @@ March 18th 2018
 import os
 import signal
 import socket
+from typing import Tuple
 
 class Client:
 
-    prompt = """\
+    prompt: str = """\
 === Database Menu ===
 
 1. Find customer
@@ -25,10 +26,11 @@ class Client:
 8. Exit
                 
 Select: """
+    buffer: int = 1024
 
     def __init__(self, server_address):
-        self.active = True
-        self.address = server_address
+        self.active: bool = True
+        self.address: Tuple = server_address
 
     @staticmethod
     def ask_command():
@@ -95,7 +97,7 @@ Select: """
         self.sock.sendall((request + "\n").encode())
 
     def receive_response(self):
-        return "Server response: " + self.sock.recv(1024).decode().strip()
+        return "Server response: " + self.sock.recv(Client.buffer).decode().strip()
 
     def request(self):
         command = Client.ask_command()

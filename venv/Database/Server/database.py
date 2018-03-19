@@ -6,23 +6,22 @@ Assignment 2
 March 18th 2018
 """
 
-from typing import List
+from typing import List, Dict
 
 class Database:
     """
     Database storage structure
     """
 
-    def __init__(self, file: str) -> Database:
+    def __init__(self, file: str) -> None:
         """
         Initializes the database in the given text file
         :param file: File to Initialize the database with
         """
 
         # Initialise database
-        self.fileName = file
-        self.database = { }
-        self.valid = True
+        self.fileName: str = file
+        self.database: Dict = { }
 
         try:
 
@@ -41,8 +40,9 @@ class Database:
             self.update_file()
         except:
             # If invalid, let the use know
-            self.valid = False
-            print("Database file invalid")
+            print("Database file not found, creating a new one")
+            with open(file, "w") as f:
+                pass
 
     @staticmethod
     def process_customer(line: str) -> List:
@@ -216,6 +216,5 @@ class Database:
         Updates the Database text file on the disk
         """
 
-        if self.valid:
-            with open(self.fileName, "w") as f:
-                f.write(self.report())
+        with open(self.fileName, "w") as f:
+            f.write(self.report())
