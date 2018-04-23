@@ -1,8 +1,8 @@
-%% Christophe Savard
-%% 40017812
-%% COMP-348 E
-%% Assignment 4
-%% April 22nd 2018
+%%% Christophe Savard
+%%% 40017812
+%%% COMP-348 E
+%%% Assignment 4
+%%% April 23rd 2018
 
 -module(exchange).
 -export([start/0]).
@@ -13,67 +13,61 @@
 -import(lists, [foreach/2, map/2]).
 -import(string, [join/2]).
 
-%% @doc Main method, application entry point
+%%% @doc Main method, application entry point
 -spec start() -> ok.
 start() ->
-  % Setup Main thread
-  register(main, self()),
-  % Seed RNG
-  random:seed(),
+  % Seed RNG (unnecessary since it is automatically seeded by the calls, but explicit is better)
+  rand:seed(exrop),
 
-  % Setup caller threads
+  % Read data from text file
   fwrite("=== Calls to be made ===~n"),
   { _ ,Callers } = consult("calls.txt"),
-  foreach(fun (C) ->
-            {Name, Calls} = C,
-            % Print calling info
-            fwrite("~s: [~s]~n", [Name, join(map(fun (S) -> format("~s",[S]) end, Calls), ", ")]),
-            % Spawn children thread
-            spawn(calling, call_all, [Name, Calls])
-          end, Callers),
+
+  % Create all processes
+  PIDs = map(fun create_caller/1, Callers),
   fwrite("~n"),
 
-  % Wait for all child processes to be registered
-  wait_for_registration(length(Callers)),
-
-  % Send go message to all processes
-  foreach(fun (C) ->
-            {Name, _} = C,
-            whereis(Name) ! ok
-          end, Callers),
+  % Signal to callers that all processes have been created
+  foreach(fun (PID) -> PID ! self() end, PIDs),
 
   % Listen to communications between callers
   listen().
 
-%% @doc Waits until a certain number of messages have been received to proceed
-%% @param Len Amount of messages to receive before continuing
--spec wait_for_registration(integer()) -> ok.
-wait_for_registration(0) -> ok;
-wait_for_registration(Len) ->
-  receive
-    _ -> wait_for_registration(Len - 1)
-  end.
+%%% @doc Spawns the caller process with the given data, and registers it's PID
+%%% @param Caller The caller data tuple, containing the caller's name and a list of calls to make
+%%% @return The PID of the created caller process
+-spec create_caller(tuple()) -> pid().
+create_caller(Caller) ->
+  % Get caller name and list of Calls
+  {Name, Calls} = Caller,
+  % Print out calls to make
+  fwrite("~s: [~s]~n", [Name, join(map(fun (S) -> format("~p", [S]) end, Calls), ", ")]),
+  % Spawn the process
+  PID = spawn(calling, call_all, [Name, Calls, self()]),
+  % Register the process, then return the PID
+  register(Name, PID),
+  PID.
 
-%% @doc Listens to communications between the processes to the main tread, times out after 1.5s
+%%% @doc Listens to communications between the processes to the main tread, times out after 1.5s
 -spec listen() -> ok.
 listen() ->
   receive
     % Call received notification
-    {Type, From, To, Time} when Type == call ->
+    {call, From, To, Time} ->
       fwrite("~s received intro message from ~s [~w]~n", [To, From, Time]),
       listen();
 
     % Call reply notification
-    {Type, From, To, Time} when Type == reply ->
+    {reply, From, To, Time} ->
       fwrite("~s received reply message from ~s [~w]~n", [To, From, Time]),
       listen();
 
     % Process terminated notification
-    Name ->
-      fwrite("~nProcess ~s has received no calls for 1 second, ending...~n", [Name]),
+    {finished, Name} ->
+      fwrite("~nProcess ~s has received no calls for 1s, ending...~n", [Name]),
       listen()
 
-  % Timeout
+  % Timeout after 1.5s
   after 1500 ->
-    fwrite("~nMaster has received no replies for 1.5 second, ending...~n")
+    fwrite("~nMaster has received no replies for 1.5s, ending...~n")
   end.
